@@ -1,0 +1,26 @@
+#Placeholder :
+# {printer} : Printer name
+# {value} : New Value
+
+administration:
+  printer:
+    printer-create-use: "§cUtilisation: /printer <create|name> <name|set> <income|income-time|max-amount-money|max-printer-limit|enabled|structure> <value>"
+    printer-exist: "§cLe printer {printer} existe déjà"
+    printer-created: "§aLe printer {printer} a été créé"
+    item-stack: "§cL'item ne doit pas dépaser 1"
+    printer-list-empty: "§cIl n'y a pas de printer enregistré"
+    printer-value:
+      income: "§aLe revenu du printer {printer} est maintenant de {value}"
+      income-time: "§aLe temps de revenu du printer {printer} est maintenant de {value}"
+      max-amount-money: "§aLe montant maximum du printer {printer} est maintenant de {value}"
+      max-printer-limit: "§aLe nombre maximum de printer {printer} est maintenant de {value}"
+      enabled: "§aLe printer {printer} est maintenant {value}"
+      structure: "§aLa structure du printer {printer} est maintenant {value}"
+      printer-delete: "§cLe printer {printer} a été supprimé"
+      error:
+        income: "§cLe revenu du printer {printer} doit être un nombre"
+        income-time: "§cLe temps de revenu du printer {printer} doit être un nombre"
+        max-amount-money: "§cLe montant maximum du printer {printer} doit être un nombre"
+        max-printer-limit: "§cLe nombre maximum de printer {printer} doit être un nombre"
+        enabled: "§cLe printer {printer} doit être true ou false"
+        structure: "§cLa structure du printer {printer} doit être un nom"

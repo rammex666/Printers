@@ -1,0 +1,8 @@
+name: FarmIndustryEra
+version: '1.0-SNAPSHOT'
+main: fr.mineera.FarmIndustryEra.bukkit.FarmIndustryEra
+api-version: '1.20'
+commands:
+  printer:
+    description: Printer command
+    permission: farmindustryera.printers

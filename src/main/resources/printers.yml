@@ -1,0 +1,9 @@
+printers:
+  test:
+    item: PLAYER_HEAD
+    settings:
+      enabled: false
+      income: 1
+      income-time: 3600
+      max-amount-money: 1000
+      structure: ““

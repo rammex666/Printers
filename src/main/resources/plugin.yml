@@ -1,0 +1,8 @@
+name: EraFarmIndustry
+version: '${project.version}'
+main: fr.mineera.erafarmindustry.bukkit.EraFarmIndustry
+api-version: '1.20'
+commands:
+  printer:
+    description: Printer command
+    permission: farmindustryera.printers
