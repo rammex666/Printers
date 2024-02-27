@@ -1,6 +1,7 @@
 package fr.mineera.erafarmindustry.bukkit;
 
 import fr.mineera.erafarmindustry.bukkit.commands.PrinterCommand;
+import fr.mineera.erafarmindustry.bukkit.events.PrinterBlockPlaceEvent;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -10,19 +11,18 @@ import java.io.File;
 import java.io.IOException;
 
 public final class EraFarmIndustry extends JavaPlugin {
-    File dir = getDataFolder();
-    File printers = new File(dir, "printers.yml");
-    public FileConfiguration printersconf;
-    File messages = new File(dir, "messages.yml");
-    public FileConfiguration messagesconf;
+    private File dir;
+    private File printers;
+    private FileConfiguration printersConf;
+    private File messages;
+    private FileConfiguration messagesConf;
 
     @Override
     public void onEnable() {
         getLogger().info("has been enabled!");
-        // load config files
-        loadfiles();
-        // register commands
+        loadFiles();
         this.getCommand("printer").setExecutor(new PrinterCommand(this));
+        this.getServer().getPluginManager().registerEvents(new PrinterBlockPlaceEvent(this), this);
     }
 
     @Override
@@ -30,43 +30,46 @@ public final class EraFarmIndustry extends JavaPlugin {
         getLogger().info("has been disabled!");
     }
 
+    private void loadFiles() {
+        dir = getDataFolder();
+        printers = new File(dir, "printers.yml");
+        messages = new File(dir, "messages.yml");
 
-    void loadfiles() {
         if (!printers.exists()) {
             printers.getParentFile().mkdirs();
             saveResource("printers.yml", false);
         }
 
-        printersconf = new YamlConfiguration();
-        try {
-            printersconf.load(printers);
-        } catch (IOException | InvalidConfigurationException e) {
-            e.printStackTrace();
-        }
+        printersConf = loadConfiguration(printers);
 
         if (!messages.exists()) {
             messages.getParentFile().mkdirs();
             saveResource("messages.yml", false);
         }
 
-        messagesconf = new YamlConfiguration();
+        messagesConf = loadConfiguration(messages);
+    }
+
+    private FileConfiguration loadConfiguration(File file) {
+        FileConfiguration configuration = new YamlConfiguration();
         try {
-            messagesconf.load(messages);
+            configuration.load(file);
         } catch (IOException | InvalidConfigurationException e) {
             e.printStackTrace();
         }
+        return configuration;
     }
 
     public void savePrinter() {
         try {
-            printersconf.save(printers);
+            printersConf.save(printers);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
     public FileConfiguration getPrinter() {
-        return printersconf;
+        return printersConf;
     }
 
     public File getPrintersFile() {
@@ -78,6 +81,6 @@ public final class EraFarmIndustry extends JavaPlugin {
     }
 
     public FileConfiguration getMessages(){
-        return messagesconf;
+        return messagesConf;
     }
 }

@@ -3,14 +3,11 @@ package fr.mineera.erafarmindustry.bukkit.commands;
 import fr.mineera.erafarmindustry.bukkit.EraFarmIndustry;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.persistence.PersistentDataContainer;
-import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.regex.Matcher;
@@ -40,14 +37,14 @@ public class PrinterCommand implements CommandExecutor {
                 player.sendMessage(plugin.getMessages().getString("administration.printer.item-stack"));
                 return false;
             } else {
-                saveMetaData(itemInHand, args[1], player);
+                itemInHand.getItemMeta().setDisplayName(hex("&6&n"+args[1]));
                 createPrinter(player, args[1]);
             }
         }
         switch (args[1]) {
             case "delete" -> {
                 if (isPrinterExist(args[0])) {
-                    plugin.printersconf.set("printers." + args[0], null);
+                    plugin.getPrinter().set("printers." + args[0], null);
                     plugin.savePrinter();
                     player.sendMessage(plugin.getMessages().getString("administration.printer.printer-delete")
                             .replace("{printer}", args[0]));
@@ -61,7 +58,7 @@ public class PrinterCommand implements CommandExecutor {
                     player.sendMessage(plugin.getMessages().getString("administration.printer.printer-list-empty"));
                 } else {
                     player.sendMessage(plugin.getMessages().getString("administration.printer.printer-list"));
-                    for (String key : plugin.printersconf.getConfigurationSection("printers").getKeys(false)) {
+                    for (String key : plugin.getPrinter().getConfigurationSection("printers").getKeys(false)) {
                         player.sendMessage(key);
                     }
                 }
@@ -71,7 +68,7 @@ public class PrinterCommand implements CommandExecutor {
                     switch (args[2]) {
                         case "income" -> {
                             if(SettingsCondition(Integer.valueOf(args[3]))) {
-                                plugin.printersconf.set("printers." + args[0] + ".settings.income", Integer.parseInt(args[3]));
+                                plugin.getPrinter().set("printers." + args[0] + ".settings.income", Integer.parseInt(args[3]));
                                 plugin.savePrinter();
                                 player.sendMessage(hex(plugin.getMessages().getString("administration.printer.printer-value.income")
                                         .replace("{printer}", args[0])
@@ -83,7 +80,7 @@ public class PrinterCommand implements CommandExecutor {
                         }
                         case "income-time" -> {
                             if(SettingsCondition(Integer.valueOf(args[3]))) {
-                                plugin.printersconf.set("printers." + args[0] + ".settings.income-time", Integer.parseInt(args[3]));
+                                plugin.getPrinter().set("printers." + args[0] + ".settings.income-time", Integer.parseInt(args[3]));
                                 plugin.savePrinter();
                                 player.sendMessage(hex(plugin.getMessages().getString("administration.printer.printer-value.income-time")
                                         .replace("{printer}", args[0])
@@ -95,7 +92,7 @@ public class PrinterCommand implements CommandExecutor {
                         }
                         case "max-amount-money" -> {
                             if(SettingsCondition(Integer.valueOf(args[3]))) {
-                                plugin.printersconf.set("printers." + args[0] + ".settings.max-amount-money", Integer.parseInt(args[3]));
+                                plugin.getPrinter().set("printers." + args[0] + ".settings.max-amount-money", Integer.parseInt(args[3]));
                                 plugin.savePrinter();
                                 player.sendMessage(hex(plugin.getMessages().getString("administration.printer.printer-value.error.max-amount-money")
                                         .replace("{printer}", args[0])
@@ -107,7 +104,7 @@ public class PrinterCommand implements CommandExecutor {
                         }
                         case "max-printer-limit" -> {
                             if(SettingsCondition(Integer.valueOf(args[3]))) {
-                                plugin.printersconf.set("printers." + args[0] + ".settings.max-printer-limit", Integer.parseInt(args[3]));
+                                plugin.getPrinter().set("printers." + args[0] + ".settings.max-printer-limit", Integer.parseInt(args[3]));
                                 plugin.savePrinter();
                                 player.sendMessage(hex(plugin.getMessages().getString("administration.printer.printer-value.error.max-printer-limit")
                                         .replace("{printer}", args[0])
@@ -122,7 +119,7 @@ public class PrinterCommand implements CommandExecutor {
                                 player.sendMessage(hex(plugin.getMessages().getString("administration.printer.printer-value.error.enabled")));
                                 return false;
                             } else {
-                                plugin.printersconf.set("printers." + args[0] + ".settings.enabled", Boolean.parseBoolean(args[3]));
+                                plugin.getPrinter().set("printers." + args[0] + ".settings.enabled", Boolean.parseBoolean(args[3]));
                                 plugin.savePrinter();
                                 player.sendMessage(hex(plugin.getMessages().getString("administration.printer.printer-value.enabled")
                                         .replace("{printer}", args[0])
@@ -134,7 +131,7 @@ public class PrinterCommand implements CommandExecutor {
                                 player.sendMessage(hex(plugin.getMessages().getString("administration.printer.printer-value.error.structure")));
                                 return false;
                             } else {
-                                plugin.printersconf.set("printers." + args[0] + ".settings.structure", args[3]);
+                                plugin.getPrinter().set("printers." + args[0] + ".settings.structure", args[3]);
                                 plugin.savePrinter();
                                 player.sendMessage(hex(plugin.getMessages().getString("administration.printer.printer-value.error.structure")
                                         .replace("{printer}", args[0])
@@ -207,28 +204,23 @@ public class PrinterCommand implements CommandExecutor {
     }
 
     public void createPrinter(Player player,String arg){
-        plugin.printersconf.set("printers." + arg + ".item", player.getInventory().getItemInMainHand().getType().name());
-        plugin.printersconf.set("printers." + arg + ".settings.enabled", false);
-        plugin.printersconf.set("printers." + arg + ".settings.income", 1);
-        plugin.printersconf.set("printers." + arg + ".settings.income-time", 3600);
-        plugin.printersconf.set("printers." + arg + ".settings.max-amount-money", 1000);
-        plugin.printersconf.set("printers." + arg + ".settings.structure", "““");
+        plugin.getPrinter().set("printers." + arg + ".item", player.getInventory().getItemInMainHand().getType().name());
+        plugin.getPrinter().set("printers." + arg + ".settings.enabled", false);
+        plugin.getPrinter().set("printers." + arg + ".settings.income", 1);
+        plugin.getPrinter().set("printers." + arg + ".settings.income-time", 3600);
+        plugin.getPrinter().set("printers." + arg + ".settings.max-amount-money", 1000);
+        plugin.getPrinter().set("printers." + arg + ".settings.structure", "““");
         plugin.savePrinter();
         player.sendMessage(plugin.getMessages().getString("administration.printer.created"));
     }
 
-    public void saveMetaData(ItemStack itemInHand,String arg,Player player ){
-        PersistentDataContainer container = itemInHand.getItemMeta().getPersistentDataContainer();
-        NamespacedKey key = new NamespacedKey(plugin, arg);
-        container.set(key, PersistentDataType.STRING, player.getUniqueId().toString());
-    }
 
     public boolean isPrinterExist(String arg){
-        return plugin.printersconf.getConfigurationSection("printers").getKeys(false).contains(arg);
+        return plugin.getPrinter().getConfigurationSection("printers").getKeys(false).contains(arg);
     }
 
     public boolean isPrinterListEmpty(String key){
-        return plugin.printersconf.getConfigurationSection(key).getKeys(false).isEmpty();
+        return plugin.getPrinter().getConfigurationSection(key).getKeys(false).isEmpty();
     }
 }
 
